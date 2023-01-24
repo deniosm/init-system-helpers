@@ -2,32 +2,24 @@
 
 # Wrapper around update-rc.d that auto-disables service that we don't
 # want to start by default.
-
 use strict;
 use warnings;
-
 my $initd = "/etc/init.d";
 my $etcd  = "/etc/rc";
 my $notreally = 0;
-
 my @orig_argv = @ARGV;
-
 while($#ARGV >= 0 && ($_ = $ARGV[0]) =~ /^-/) {
 	shift @ARGV;
 }
-
 my $bn = shift @ARGV;
 my $action = shift @ARGV;
-
 my %status_wanted;
 while (<DATA>) {
     next if /^#/;
     my ($service, $status) = split;
     $status_wanted{$service} = $status;
 }
-
 my @links = glob("/etc/rc[0-9S].d/[SK][0-9][0-9]$bn");
-
 if (exists $ENV{'DPKG_RUNNING_VERSION'} and
     $action =~ /defaults|start|stop/ and not scalar(@links)) {
     # We're in a maint-script and we're about to install a new init script
@@ -53,10 +45,8 @@ if (exists $ENV{'DPKG_RUNNING_VERSION'} and
 	}
     }
 }
-
 exec("/usr/sbin/debian-update-rc.d", @orig_argv);
 die "$0: could not exec debian-update-rc.d: $!\n";
-
 sub parse_lsb_header {
     my $initdscript = shift;
     my %lsbinfo;
@@ -71,7 +61,6 @@ sub parse_lsb_header {
         }
     }
     close(INIT);
-
     # Check that all the required headers are present
     if (!$lsbinfo{found}) {
 	printf STDERR "update-rc.d: warning: $initdscript missing LSB information\n";
@@ -85,10 +74,8 @@ sub parse_lsb_header {
             }
         }
     }
-
     return \%lsbinfo;
 }
-
 __DATA__
 #
 # Deadpool
@@ -133,7 +120,6 @@ tor disabled
 udftools disabled
 python-faraday disabled
 pure-ftpd disabled
-
 #
 # List of whitelisted init scripts
 #
@@ -211,4 +197,3 @@ uml-utilities enabled
 urandom enabled
 virtualbox enabled
 x11-common enabled
-
